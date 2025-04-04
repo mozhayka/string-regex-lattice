@@ -1,7 +1,7 @@
 \documentclass[a4paper,article,14pt]{extarticle}
 
 % Подключаем главный пакет со всем необходимым
-\usepackage{items/spbudiploma}
+\usepackage{items/main/spbudiploma}
 
 % Пакеты по желанию (самые распространенные)
 % Хитрые мат. символы
@@ -62,16 +62,18 @@
 \begin{document}
 
 % Титульник в файле titlepage.tex
-\input{items/0_titlepage.tex}
+\input{items/main/titlepage.tex}
 
 % Содержание
 \tableofcontents
 \pagebreak
 
-\include{items/1_intro}
+\include{items/main/intro}
 
-\include{items/2_theory}
+\include{items/theory/static_analyzis}
+\include{items/theory/symbolic}
+\include{items/theory/string}
 
-\include{items/4_concl}
+\include{items/main/conclusion}
 
 \end{document}
