@@ -84,3 +84,50 @@ let repeats = 100 / str.length;
 \subsection{TARSIS}
 
 TARSIS (Template-based Abstract Representation of Strings with Static analysis) — это современный строковый абстрактный домен, предложенный в работе~\cite{tarsis2021}. Основное новшество Tarsis заключается в том, что он работает с алфавитом строк, а не с отдельными символами. С одной стороны, такой подход требует более сложного и уточненного определения расширяющего оператора и абстрактной семантики строковых операторов. С другой стороны, это позволяет получать более точные результаты
+
+\subsubsection*{Основные функции}
+В статье описан алгоритм для аппроксимации с доказательством полноты наиболее часто использующихся функций на строках, а именно substr, length, indexOf, replace, concat и contains
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{images/tarsis-functions.png}\hfill
+\end{figure}
+
+Теперь разберем более подробно каждую из функций
+
+\newpage
+
+\subsubsection*{Length}
+Возвращает интервал $[c_1, c_2]$, такой что $c_1 \leq |s| \leq c_2$. При этом если $s$ содержит в себе цикл, или же содержит в себе переход, на котором стоит $\top$, то есть любая строка, то максимальная длина будет сколь угодно большой. Минимальная при этом заменяет все топы на пустые строки.
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{images/tarsis-length.png}\hfill
+\end{figure}
+    
+
+\subsubsection*{Concat}
+\subsubsection*{Contains}
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{images/tarsis-contains.png}\hfill
+\end{figure}
+        
+\subsubsection*{IndexOf}
+
+\subsubsection*{Substr}
+
+\subsubsection*{Replace}
+
+\newpage
+\subsubsection*{Widening}
+Важным методом аппроксимации является widening. Именно благодаря ему удается завершать циклы за конечное время, создавая аппроксимацию. Рассмотрим пример того, как это реализованно
+
+\begin{lstlisting}[caption={Пример применения widening}]
+function f(v) {
+    res = "";
+    while(?) res = res + "id = " + v;
+    return res;
+}
+\end{lstlisting}
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{images/tarsis-widening.png}\hfill
+\end{figure}
