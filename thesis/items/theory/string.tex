@@ -92,18 +92,4 @@ TARSIS (Template-based Abstract Representation of Strings with Static analysis) 
 \includegraphics[width=\textwidth]{images/tarsis-functions.png}\hfill
 \end{figure}
 
-\newpage
-\subsubsection*{Widening}
-Важным методом аппроксимации является widening. Именно благодаря ему удается завершать циклы за конечное время, создавая аппроксимацию. Рассмотрим пример того, как это реализованно
-
-\begin{lstlisting}[caption={Пример применения widening}]
-function f(v) {
-    res = "";
-    while(?) res = res + "id = " + v;
-    return res;
-}
-\end{lstlisting}
-
-\begin{figure}[H]
-\includegraphics[width=\textwidth]{images/tarsis-widening.png}\hfill
-\end{figure}
+Также важной функцией является widening, при помощи которой удается завершать анализ циклов за конечное время

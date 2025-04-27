@@ -112,3 +112,117 @@
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{images/tarsis-RP-algo.png}\hfill
 \end{figure}
+
+
+
+
+\newpage
+\subsection{Оператор расширения}
+Важным методом является оператор расширения (widening). Именно благодаря ему удается завершать циклы за конечное время, создавая аппроксимацию. Рассмотрим пример того, как это реализованно
+
+\begin{lstlisting}[caption={Пример применения widening}]
+function f(v) {
+    res = "";
+    while(?) res = res + "id = " + v;
+    return res;
+}
+\end{lstlisting}
+
+Автомат, задающий значения res в начале второй итерации цикла while, выглядит так:
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[->, >=stealth', shorten >=1pt, auto, node distance=3cm, semithick]
+        \node[state, initial, accepting] (q0) {$q_0$};
+        \node[state, right of=q0] (q1) {$q_1$};
+        \node[state, right of=q1, accepting] (q2) {$q_2$};
+        
+        \path (q0) edge node[above] {id = } (q1)
+                (q1) edge node[above] {$\top$} (q2);
+    \end{tikzpicture}
+\end{figure}
+
+В конце второй итерации вот так:
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[->, >=stealth', shorten >=1pt, auto, node distance=3cm, semithick]
+        \node[state, initial] (q0) {$q_0$};
+        \node[state, right of=q0] (q1) {$q_1$};
+        \node[state, right of=q1, accepting] (q2) {$q_2$};
+        \node[state, right of=q2] (q3) {$q_3$};
+        \node[state, right of=q3, accepting] (q4) {$q_4$};
+        
+        \path (q0) edge node[above] {id = } (q1)
+                (q1) edge node[above] {$\top$} (q2)
+                (q2) edge node[above] {id = } (q3)
+                (q3) edge node[above] {$\top$} (q4);
+    \end{tikzpicture}
+\end{figure}
+
+Далее, для этих двух автоматов приминяем саму операцию расширения. Алгоритм такой:
+\begin{itemize}
+    \item Делаем union для этих автоматов:
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}[->, >=stealth', shorten >=1pt, auto, node distance=3cm, semithick]
+            \node[state, initial, accepting] (q0) {$q_0$};
+            \node[state, right of=q0] (q1) {$q_1$};
+            \node[state, right of=q1, accepting] (q2) {$q_2$};
+            \node[state, right of=q2] (q3) {$q_3$};
+            \node[state, right of=q3, accepting] (q4) {$q_4$};
+            
+            \path (q0) edge node[above] {id = } (q1)
+                    (q1) edge node[above] {$\top$} (q2)
+                    (q2) edge node[above] {id = } (q3)
+                    (q3) edge node[above] {$\top$} (q4);
+        \end{tikzpicture}
+    \end{figure}
+
+    \newpage
+    \item Стейты, у которых исходящие пути длины 2 совпадают, объединяем. В данном случае $q_0$ и $q_2$ оба принимают $id = \top$, и потому склеиваются в одну вершину:
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}[->, >=stealth', shorten >=1pt, auto, node distance=3cm, semithick]
+            \node[state, initial, accepting] (q0) {$q_0, q_2$};
+            \node[state, right of=q0] (q1) {$q_1$};
+            \node[state, below of=q1] (q3) {$q_3$};
+            \node[state, right of=q3, accepting] (q4) {$q_4$};
+            
+            \path (q0) edge node[above] {id = } (q1)
+                    (q0) edge node[right] {id = } (q3)
+                    (q1) edge[bend left] node[above] {$\top$} (q0)
+                    (q3) edge node[above] {$\top$} (q4);
+        \end{tikzpicture}
+    \end{figure}
+
+    В общем случае длину пути для склейки вершин можно регулировать, чем она больше, тем точнее результат, однако и размер автомата больше
+    \item Минимизируем полученный автомат:
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}[->, >=stealth', shorten >=1pt, auto, node distance=3cm, semithick]
+            \node[state, initial, accepting] (q0) {$q_0$};
+            \node[state, right of=q0] (q1) {$q_1$};
+            
+            \path (q0) edge node[above] {id = } (q1)
+                    (q1) edge[bend left] node[above] {$\top$} (q0);
+        \end{tikzpicture}
+    \end{figure}
+\end{itemize}
+
+Теперь заметим, что полученный автомат является неподвижной точкой. Для этого попробуем проделать ещё одну итерацию цикла. После объединения автоматов в начале и конце цикла получаем такой:
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[->, >=stealth', shorten >=1pt, auto, node distance=3cm, semithick]
+        \node[state, initial, accepting] (q0) {$q_0$};
+        \node[state, right of=q0] (q1) {$q_1$};
+        \node[state, right of=q1, accepting] (q2) {$q_2$};
+        
+        \path (q0) edge node[above] {id = } (q1)
+                (q1) edge[bend left] node[above] {$\top$} (q0)
+                (q1) edge node[above] {$\top$} (q2);
+    \end{tikzpicture}
+\end{figure}
+
+Склеивать вершины не придется, однако при минимизации $q_0$ и $q_2$ станут одной, то есть получим начальный автомат, что означает отсутствие изменений и значит можно остановиться 
+
+Доказано~\cite{widening}, что такой алгоритм расширения соответствует условиям овер-аппроксимации
