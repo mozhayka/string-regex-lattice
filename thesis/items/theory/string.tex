@@ -1,6 +1,6 @@
 \subsection{Строковые абстрактные домены}
 
-Пример простого строкового абстрактного домена реализован в системе \textbf{JSAI} --- платформе статического анализа JavaScript ~\cite{guha2012jsai}. В ней строки представляются в виде:
+Пример простого строкового абстрактного домена реализован в системе \textbf{JSAI}~\cite{guha2012jsai} - платформе статического анализа JavaScript. В ней строки представляются в виде:
 \begin{itemize}
     \item любая ($\top$) и неинициализированная ($\bot$) строки
     \item константные строки
@@ -28,6 +28,10 @@ if (s.length == 0) {
 let repeats = 100 / str.length;
 \end{lstlisting}
 
+В статьях чаще всего упоминаются ещё 3 строковых решетки, обладающих большей точностью
+
+\subsubsection*{The abstract length string domain}
+Эта решетка запоминает минимальную и максимальную длину строк, которые может принимать абстрактное значение. Для примера выше она отлично подойдет, так как запомнит, что минимальная длина 3, а максимальная 4, и даже сможет верно вернуть значение для repeats. Однако для других операций, таких как substr или charAt, точности не будет хватать
 
 
 
@@ -86,10 +90,31 @@ let repeats = 100 / str.length;
 TARSIS (Template-based Abstract Representation of Strings with Static analysis) — это современный строковый абстрактный домен, предложенный в работе~\cite{tarsis2021}. Основное новшество Tarsis заключается в том, что он работает с алфавитом строк, а не с отдельными символами. С одной стороны, такой подход требует более сложного и уточненного определения расширяющего оператора и абстрактной семантики строковых операторов. С другой стороны, это позволяет получать более точные результаты
 
 \subsubsection*{Основные функции}
-В статье описан алгоритм для аппроксимации с доказательством полноты наиболее часто использующихся функций на строках, а именно substr, length, indexOf, replace, concat и contains
+В статье описан алгоритм для аппроксимации с доказательством полноты наиболее часто использующихся функций на строках, а именно length, concat, substr, replace, contains и indexOf
 
-\begin{figure}[H]
-\includegraphics[width=\textwidth]{images/tarsis-functions.png}\hfill
-\end{figure}
+$$\left[ \text{length}(s) \right]_{m} = |\sigma|$$
+$$\left[ \text{concat}(s, s') \right]_{m} = \sigma \cdot \sigma'$$
+$$\left[ \text{substr}(s, a, a') \right]_{m} = \sigma_i \dots \sigma_j \quad \text{if} \quad i \leq j < |\sigma|$$
+
+
+\[
+\left[ \text{replace}(s, s', s'') \right]_{m} = 
+\begin{cases}
+\sigma \left[ s' / s'' \right] & \text{if } \sigma'  \curvearrowright_s \sigma \\
+\sigma & \text{otherwise}
+\end{cases}
+\]
+
+$$\left[ \text{contains}(s, s') \right]_{m} = 
+\begin{cases}
+\text{true} & \text{if } \exists i, j \in \mathbb{N}. \sigma_i \dots \sigma_j = s' \\
+\text{false} & \text{otherwise}
+\end{cases}$$
+
+$$\left[ \text{indexOf}(s, s') \right]_{m} = 
+\begin{cases}
+\min \left\{ i \mid \sigma_i \dots \sigma_j = s' \right\} & \text{if } \exists i, j \in \mathbb{N}. \sigma_i \dots \sigma_j = s' \\
+-1 & \text{otherwise}
+\end{cases}$$
 
 Также важной функцией является widening, при помощи которой удается завершать анализ циклов за конечное время
